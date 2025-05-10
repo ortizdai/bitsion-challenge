@@ -1,0 +1,17 @@
+### Recuperar todas los usuarios
+GET http://localhost:1234/users
+
+### Recuperar un usuario por id (o usuario)
+GET http://localhost:1234/users/:id
+
+
+### Borrar un usuario
+DELETE http://localhost:1234/users/:id
+
+### Crear un usuario
+POST http://localhost:1234/users
+Content-Type: application/json
+
+### Actualizar un usuario
+PATCH http://localhost:1234/users/:id
+Content-Type: application/json
