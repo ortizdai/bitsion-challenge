@@ -1,14 +1,17 @@
 import express, { json } from 'express'
-import { createUserRouter } from './routes/users.js'
+import { createUserRouter, } from './routes/users.js'
+import { createAttributeRouter } from './routes/attributes.js'
 import { corsMiddleware } from './middlewares/cors.js'
 
-export const createApp = ({ userModel }) => {
+export const createApp = ({ userModel, attributeModel }) => {
   const app = express()
   app.use(json())
   app.use(corsMiddleware())
   app.disable('x-powered-by')
 
   app.use('/users', createUserRouter({ userModel: userModel }))
+
+  app.use('/attributes', createAttributeRouter({ attributeModel: attributeModel }))
 
   const PORT = process.env.PORT ?? 1234
 

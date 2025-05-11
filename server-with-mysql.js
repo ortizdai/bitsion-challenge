@@ -1,5 +1,5 @@
 import { createApp } from './app.js'
 
 import { UserModel } from './models/mysql/user.js'
-
-createApp({ userModel: UserModel })
+import { AttributeModel } from './models/mysql/attribute.js'
+createApp({ userModel: UserModel, attributeModel: AttributeModel })
