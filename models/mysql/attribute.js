@@ -18,36 +18,40 @@ export class AttributeModel {
     return rows
 
   }
+
   static async createAttribute({ input }) {
-    const {
-      user_id,
-      attribute_name,
-      attribute_value,
-    } = input
-    const [uuidResult] = await connection.query('SELECT UUID() uuid;')
-    const [{ uuid }] = uuidResult
+    const { user_id, attributes } = input; // Recibimos un objeto con varios atributos
+
     try {
-      await connection.query(
-        `INSERT INTO attribute (id, user_id, attribute_name, attribute_value)
-            VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?), ?, ?);`,
-        [
-          uuid,
-          user_id,
-          attribute_name,
-          attribute_value
-        ]
-      )
+      const [user] = await connection.query('SELECT * FROM user WHERE id = UUID_TO_BIN(?)', [user_id]);
+      if (user.length === 0) {
+        throw new Error('Usuario no encontrado');
+      }
+
+      const insertPromises = Object.keys(attributes).map(async (attribute_name) => {
+        const attribute_value = attributes[attribute_name];
+        const [uuidResult] = await connection.query('SELECT UUID() uuid;');
+        const [{ uuid }] = uuidResult;
+
+        await connection.query(
+          `INSERT INTO attribute (id, user_id, attribute_name, attribute_value)
+          VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?), ?, ?);`,
+          [uuid, user_id, attribute_name, attribute_value]
+        );
+      });
+
+      await Promise.all(insertPromises);
+
+      const [attributesResult] = await connection.query(
+        `SELECT BIN_TO_UUID(id) id, BIN_TO_UUID(user_id) user_id, attribute_name, attribute_value
+         FROM attribute WHERE user_id = UUID_TO_BIN(?)`,
+        [user_id]
+      );
+
+      return attributesResult;
     } catch (e) {
-      throw new Error('Error creating attribute', e)
+      throw new Error('Error creating attributes');
     }
-
-    const [attribute] = await connection.query(
-      `SELECT BIN_TO_UUID(id) id, BIN_TO_UUID(user_id) user_id, attribute_name, attribute_value
-          FROM attribute WHERE id = UUID_TO_BIN(?);`,
-      [uuid]
-    )
-
-    return attribute[0]
   }
 
 
