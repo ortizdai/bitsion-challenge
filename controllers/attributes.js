@@ -5,6 +5,9 @@ export class AttributeController {
         this.attributeModel = attributeModel
     }
     createAttribute = async (req, res) => {
+        if (!req.session.admin) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
         const result = validateAttribute(req.body);
 
         if (!result.success) {
@@ -19,6 +22,9 @@ export class AttributeController {
         }
     }
     deleteAttribute = async (req, res) => {
+        if (!req.session.admin) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
         const { id } = req.params
         const result = await this.attributeModel.deleteAttribute({ id })
 
@@ -30,6 +36,9 @@ export class AttributeController {
     }
 
     updateAttribute = async (req, res) => {
+        if (!req.session.admin) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
         const result = validateAttribute(req.body)
 
         if (!result.success) {
@@ -42,6 +51,9 @@ export class AttributeController {
         return res.json(updatedAttribute)
     }
     getAllAttributes = async (req, res) => {
+        if (!req.session.admin) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
         const { attribute } = req.query
         const attributes = await this.attributeModel.getAllAttributes({ attribute })
         res.json(attributes)

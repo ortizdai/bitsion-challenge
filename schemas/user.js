@@ -16,11 +16,6 @@ const userSchema = z.object({
     required_error: 'user_id is required.'
   }),
   identification: z.number().int().positive(), // hay un minimo y maximo de numeros?
-  password: z.string({
-    invalid_type_error: 'password must be a string',
-    required_error: 'password is required.'
-  }).min(8, { message: 'Password must be at least 8 characters long' }),
-  attribute_name: z.string().optional() // optional attribute
 })
 
 export function validateUser (input) {

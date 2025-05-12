@@ -6,12 +6,18 @@ export class UserController {
   }
 
   getAllUsers = async (req, res) => {
+    if (!req.session.admin) {
+      return res.status(401).json({ error: 'Unauthorized' });
+  }
     const { user } = req.query
     const users = await this.userModel.getAllUsers({ user })
     res.json(users)
   }
 
   getUserById = async (req, res) => {
+    if (!req.session.admin) {
+      return res.status(401).json({ error: 'Unauthorized' });
+  }
     const { id } = req.params
     const user = await this.userModel.getUserById({ id })
     if (user) return res.json(user)
@@ -19,6 +25,9 @@ export class UserController {
   }
 
   createUser = async (req, res) => {
+    if (!req.session.admin) {
+      return res.status(401).json({ error: 'Unauthorized' });
+  }
     const result = validateUser(req.body)
 
     if (!result.success) {
@@ -31,6 +40,9 @@ export class UserController {
   }
 
   deleteUser = async (req, res) => {
+    if (!req.session.admin) {
+      return res.status(401).json({ error: 'Unauthorized' });
+  }
     const { id } = req.params
     const result = await this.userModel.deleteUser({ id })
 
@@ -42,6 +54,9 @@ export class UserController {
   }
 
   updateUser = async (req, res) => {
+    if (!req.session.admin) {
+      return res.status(401).json({ error: 'Unauthorized' });
+  }
     const result = validatePartialUser(req.body)
 
     if (!result.success) {
