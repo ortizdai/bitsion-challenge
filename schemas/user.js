@@ -10,11 +10,7 @@ const userSchema = z.object({
     invalid_type_error: 'full_name must be a string',
     required_error: 'full_name is required.'
   }),
-  state: z.string().default('activo'),
-  user_name: z.string({
-    invalid_type_error: 'user_id must be a string',
-    required_error: 'user_id is required.'
-  }),
+  state: z.string(),
   identification: z.number().int().positive(), // hay un minimo y maximo de numeros?
 })
 
