@@ -1,16 +1,21 @@
 DROP DATABASE IF EXISTS usersdb;
 CREATE DATABASE usersdb;
-DROP TABLE attribute;
 
 USE usersdb;
 
+-- Aseguramos que no queden residuos de tablas anteriores
+DROP TABLE IF EXISTS attribute;
+DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS admin;
+
+-- Creamos las tablas
 CREATE TABLE user (
   id BINARY(16) PRIMARY KEY,
   full_name VARCHAR(255) NOT NULL,
   identification VARCHAR(255) NOT NULL UNIQUE,
   age INT,
   gender VARCHAR(100) NOT NULL,
-  state ENUM('Activo', 'Inactivo') NOT NULL
+  state ENUM('Active', 'Inactive') NOT NULL
 );
 
 CREATE TABLE attribute (
@@ -21,6 +26,7 @@ CREATE TABLE attribute (
   FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
   UNIQUE (user_id, attribute_name)
 );
+
 CREATE TABLE admin (
   id BINARY(16) PRIMARY KEY,
   username VARCHAR(50) NOT NULL UNIQUE,
