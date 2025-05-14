@@ -18,8 +18,7 @@ console.log("Connected to MySQL database")
 
 export class AdminModel {
     static async getAllAdmins() {
-        const [rows] = await connection.query(`SELECT BIN_TO_UUID(id) id, username, email, full_name, password
-      FROM admin;`)
+        const [rows] = await connection.query(`SELECT BIN_TO_UUID(id) id, username, email, full_name FROM admin;`)
         return rows
     }
 
@@ -30,7 +29,6 @@ export class AdminModel {
             username,
             password,
         } = input;
-        // 1. Validar que el username no exista
         const [validUserName] = await connection.query(
             'SELECT * FROM admin WHERE userName = ?',
             [username]
@@ -57,7 +55,7 @@ export class AdminModel {
 
             return adminsResult[0];
         } catch (e) {
-            throw new Error('Error creating admin');
+            throw new Error('Error creating admin', e);
         }
     }
 

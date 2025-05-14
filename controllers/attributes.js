@@ -1,4 +1,4 @@
-import { validateAttribute } from '../schemas/attribute.js'
+import { validateAttribute, validateAttributeArray, validateSingleAttribute, } from '../schemas/attribute.js'
 
 export class AttributeController {
     constructor({ attributeModel }) {
@@ -9,7 +9,7 @@ export class AttributeController {
             return res.status(401).json({ error: 'Unauthorized' });
         }
         const result = validateAttribute(req.body);
-
+        
         if (!result.success) {
             return res.status(400).json({ error: JSON.parse(result.error.message) });
         }
@@ -39,14 +39,13 @@ export class AttributeController {
         if (!req.session.admin) {
             return res.status(401).json({ error: 'Unauthorized' });
         }
-        const result = validateAttribute(req.body)
+        const atrributes = req.body?.values?.attributes
+        const result = validateAttributeArray(atrributes)
 
         if (!result.success) {
             return res.status(400).json({ error: JSON.parse(result.error.message) })
         }
-
-        const { id } = req.params
-        const updatedAttribute = await this.attributeModel.updateAttribute({ id, input: result.data })
+        const updatedAttribute = await this.attributeModel.updateAttribute({ input: result.data })
 
         return res.json(updatedAttribute)
     }

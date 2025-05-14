@@ -9,7 +9,7 @@ export const createAttributeRouter = ({ attributeModel }) => {
   attributesRouter.post('/', attributeController.createAttribute)
   attributesRouter.get('/', attributeController.getAllAttributes)
   attributesRouter.delete('/:id', attributeController.deleteAttribute)
-  attributesRouter.patch('/:id', attributeController.updateAttribute)
+  attributesRouter.patch('/', attributeController.updateAttribute)
 
   return attributesRouter
 }

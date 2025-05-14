@@ -28,19 +28,14 @@ export class AttributeModel {
         throw new Error('Usuario no encontrado');
       }
 
-      const insertPromises = Object.keys(attributes).map(async (attribute_name) => {
-        const attribute_value = attributes[attribute_name];
-        const [uuidResult] = await connection.query('SELECT UUID() uuid;');
-        const [{ uuid }] = uuidResult;
+      for (const attr of attributes) {
 
         await connection.query(
           `INSERT INTO attribute (id, user_id, attribute_name, attribute_value)
-          VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?), ?, ?);`,
-          [uuid, user_id, attribute_name, attribute_value]
+            VALUES (UUID_TO_BIN(UUID()), UUID_TO_BIN(?), ?, ?);`,
+          [user_id, attr.name, attr.value]
         );
-      });
-
-      await Promise.all(insertPromises);
+      }
 
       const [attributesResult] = await connection.query(
         `SELECT BIN_TO_UUID(id) id, BIN_TO_UUID(user_id) user_id, attribute_name, attribute_value
@@ -50,30 +45,37 @@ export class AttributeModel {
 
       return attributesResult;
     } catch (e) {
-      throw new Error('Error creating attributes');
+      throw new Error('Error creating attributes', e);
     }
   }
 
 
-  static async updateAttribute({ id, input }) {
-    const allowedFields = ['attribute_value'];
-    const fields = Object.keys(input).filter(field => allowedFields.includes(field));
+  static async updateAttribute({ input }) {
+    const attributes = input;
 
-    if (fields.length === 0) {
-      throw new Error('No hay campos válidos para actualizar');
+    if (attributes?.length === 0) {
+      throw new Error('No hay campos para actualizar');
+    }
+    try {
+      let result
+      for (const attr of attributes) {
+        result = await connection.query(
+          `UPDATE attribute SET attribute_value = ? WHERE id = UUID_TO_BIN(?)`,
+          [attr.value, attr.id]
+        );
+      }
+
+
+      if (result.affectedRows === 0) {
+        console.warn('No se actualizó ningún registro. Verificar si el ID existe y si los valores realmente cambiaron.');
+      }
+      return { message: 'Atributos actualizados', result }
+    } catch (e) {
+      throw new Error('Error updating attribute', e);
+
     }
 
-    const setClause = fields.map(field => `${field} = ?`).join(', ');
-
-    const values = fields.map(field => input[field]);
-
-    const [result] = await connection.query(
-      `UPDATE attribute SET ${setClause} WHERE id = UUID_TO_BIN(?)`,
-      [...values, id]
-    );
-    return result;
   }
-
   static async deleteAttribute({ id }) {
     try {
       const [result] = await connection.query(

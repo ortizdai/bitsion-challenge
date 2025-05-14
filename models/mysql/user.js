@@ -14,36 +14,31 @@ export class UserModel {
     const {
       full_name,
       identification,
-      user_name,
-      password,
       age,
       gender,
       state,
     } = input
 
-    // crypto.randomUUID()
     const [uuidResult] = await connection.query('SELECT UUID() uuid;')
     const [{ uuid }] = uuidResult
 
     try {
       await connection.query(
-        `INSERT INTO user (id, full_name, identification, user_name, password, age, gender, state)
-            VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?, ?, ?);`,
+        `INSERT INTO user (id, full_name, identification, age, gender, state)
+            VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?);`,
         [uuid,
           full_name,
           identification,
-          user_name,
-          password,
           age,
           gender,
           state]
       )
     } catch (e) {
-      throw new Error('Error creating user')
+      throw new Error('Error creating user', e)
     }
 
     const [users] = await connection.query(
-      `SELECT BIN_TO_UUID(id) id, full_name, identification, user_name, age, gender, state
+      `SELECT BIN_TO_UUID(id) id, full_name, identification, age, gender, state
           FROM user WHERE id = UUID_TO_BIN(?);`,
       [uuid]
     )
@@ -61,29 +56,36 @@ export class UserModel {
       u.gender,
       u.state,
       a.attribute_name,
-      a.attribute_value
+      a.attribute_value,
+      BIN_TO_UUID(a.id) AS id
+
     FROM user u
     LEFT JOIN attribute a ON u.id = a.user_id
     WHERE u.id = UUID_TO_BIN(?)`,
       [id]
     )
     if (users.length === 0) return null;
-    const attributes = {};
-    users.forEach(attr => {
-      if (attr.attribute_name) {
-        attributes[attr.attribute_name] = attr.attribute_value;
-      }
-    });
-    const user = {
-      id: users[0].id,
-      full_name: users[0].full_name,
-      identification: users[0].identification,
-      age: users[0].age,
-      gender: users[0].gender,
-      state: users[0].state,
-      attributes
-    };
-    return user
+    try {
+      const attributes = [];
+      users.forEach(attr => {
+        if (attr.attribute_name) {
+          attributes.push({ name: attr.attribute_name, value: attr.attribute_value, id: attr.id })
+        }
+      });
+      const user = {
+        id: users[0].id,
+        full_name: users[0].full_name,
+        identification: users[0].identification,
+        age: users[0].age,
+        gender: users[0].gender,
+        state: users[0].state,
+        attributes
+      };
+      return user
+    } catch (e) {
+      throw new Error('Error', e)
+    }
+
   }
   static async getAllUsers() {
     const [usersData] = await connection.query(
@@ -112,7 +114,7 @@ export class UserModel {
           age: row.age,
           gender: row.gender,
           state: row.state,
-          attributes: []
+          attributes: {}
         });
       }
 
@@ -125,7 +127,7 @@ export class UserModel {
   }
 
   static async updateUser({ id, input }) {
-    const allowedFields = ['full_name', 'user_name', 'age', 'gender'];
+    const allowedFields = ['full_name', 'age', 'gender', 'state', 'identification'];
 
     const fields = Object.keys(input).filter(field => allowedFields.includes(field));
 
@@ -151,9 +153,12 @@ export class UserModel {
         `DELETE FROM user WHERE id = UUID_TO_BIN(?);`,
         [id]
       )
+      if (result.affectedRows === 0) {
+        throw new Error('No se pudo eliminar: el usuario no existe');
+      }
       return result.affectedRows > 0
     }
-    catch (error) {
+    catch (e) {
       return false
     }
   }
