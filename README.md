@@ -31,7 +31,7 @@ npm run test
 
 ## 🔹 1. Users
 
-Creamos endpoints para:
+Cree endpoints para:
 - Crear usuario (POST /users)  
 - Actualizar usuario (PATCH /users/:id)  
 - Eliminar usuario (DELETE /users/:id)  
@@ -88,7 +88,7 @@ Implemente autenticación usando JWT:
 
 ## 🔹 4. Seguridad
 
-Creamos un middleware `authenticateAdmin` para proteger las rutas.  
+Cree un middleware `authenticateAdmin` para proteger las rutas.  
 - Verifica la cookie `access_token`.  
 - Si el token es válido, se guarda la sesión en `req.session.admin`.  
 - Las rutas sensibles (como obtener admins o usuarios) ahora requieren que el admin esté autenticado.
