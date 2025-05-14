@@ -5,13 +5,13 @@ const userSchema = z.object({
     invalid_type_error: 'full_name must be a string',
     required_error: 'full_name is required.'
   }),
-  age: z.number().int(), // hay un rango de edad requerido?
+  age: z.number().int(), // Is there an age range required?
   gender: z.string({
     invalid_type_error: 'full_name must be a string',
     required_error: 'full_name is required.'
   }),
   state: z.string(),
-  identification: z.number().int().positive(), // hay un minimo y maximo de numeros?
+  identification: z.number().int().positive(), // Is there a minimum and maximum number of digits for the identification?
 })
 
 export function validateUser (input) {

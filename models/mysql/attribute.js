@@ -1,11 +1,13 @@
 import mysql from "mysql2/promise";
+import dotenv from 'dotenv';
+dotenv.config();
 // MySQL connection configuration
-const config = {
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "usersdb"
-}
+const config= {
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+};
 
 const connection = await mysql.createConnection(config)
 console.log("Connected to MySQL database")
@@ -25,7 +27,7 @@ export class AttributeModel {
     try {
       const [user] = await connection.query('SELECT * FROM user WHERE id = UUID_TO_BIN(?)', [user_id]);
       if (user.length === 0) {
-        throw new Error('Usuario no encontrado');
+        throw new Error('Attribute not found');
       }
 
       for (const attr of attributes) {
@@ -54,7 +56,7 @@ export class AttributeModel {
     const attributes = input;
 
     if (attributes?.length === 0) {
-      throw new Error('No hay campos para actualizar');
+      throw new Error('No updatable fields found');
     }
     try {
       let result
@@ -67,9 +69,9 @@ export class AttributeModel {
 
 
       if (result.affectedRows === 0) {
-        console.warn('No se actualizó ningún registro. Verificar si el ID existe y si los valores realmente cambiaron.');
+        console.warn('Update failed: no matching record found or no changes detected');
       }
-      return { message: 'Atributos actualizados', result }
+      return { message: 'Attributes updated', result }
     } catch (e) {
       throw new Error('Error updating attribute', e);
 

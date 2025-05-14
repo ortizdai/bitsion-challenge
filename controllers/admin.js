@@ -14,7 +14,7 @@ export class AdminController {
             const newAdmin = await this.adminModel.createAdmin({ input: result.data });
             res.status(201).json(newAdmin);
         } catch (error) {
-            console.error('Error creating attribute:', error);
+            console.error('Error creating admin:', error);
         }
     }
     deleteAdmin = async (req, res) => {

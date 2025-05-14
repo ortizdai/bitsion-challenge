@@ -1,11 +1,13 @@
 import mysql from "mysql2/promise";
+import dotenv from 'dotenv';
+dotenv.config();
 // MySQL connection configuration
-const config = {
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "usersdb"
-}
+const config= {
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+};
 
 const connection = await mysql.createConnection(config)
 
@@ -132,7 +134,7 @@ export class UserModel {
     const fields = Object.keys(input).filter(field => allowedFields.includes(field));
 
     if (fields.length === 0) {
-      throw new Error('No hay campos válidos para actualizar');
+      throw new Error('Update failed: no matching record found or no changes detected');
     }
 
     const setClause = fields.map(field => `${field} = ?`).join(', ');
@@ -154,7 +156,7 @@ export class UserModel {
         [id]
       )
       if (result.affectedRows === 0) {
-        throw new Error('No se pudo eliminar: el usuario no existe');
+        throw new Error('Unable to delete: user not found');
       }
       return result.affectedRows > 0
     }
