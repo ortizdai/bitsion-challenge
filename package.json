@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "dev": "node --watch server.js",
     "start:mysql": "node --watch server-with-mysql.js",
     "start:local": "node --watch server-with-local.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -14,16 +15,22 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^16.5.0",
-    "express": "^5.1.0",
-    "mysql2": "^3.14.1",
-    "zod": "^3.24.4"
+    "bcrypt": "6.0.0",
+    "cookie-parser": "1.4.7",
+    "cors": "2.8.5",
+    "dotenv": "16.5.0",
+    "express": "5.1.0",
+    "jsonwebtoken": "9.0.2",
+    "mysql2": "3.14.1",
+    "zod": "3.24.4"
   },
   "devDependencies": {
-    "@eslint/js": "^9.26.0",
-    "eslint": "^9.26.0",
-    "eslint-plugin-react": "^7.37.5",
-    "globals": "^16.1.0"
+    "@eslint/js": "9.26.0",
+    "eslint": "9.26.0",
+    "eslint-plugin-react": "7.37.5",
+    "globals": "16.1.0"
+  },
+  "eslintConfig": {
+    "extends": "standard"
   }
 }

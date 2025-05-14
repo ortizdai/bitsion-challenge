@@ -1,17 +1,23 @@
 import { validateUser, validatePartialUser } from '../schemas/user.js'
 
 export class UserController {
-  constructor ({ userModel }) {
+  constructor({ userModel }) {
     this.userModel = userModel
   }
 
   getAllUsers = async (req, res) => {
+    if (!req.session.admin) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
     const { user } = req.query
     const users = await this.userModel.getAllUsers({ user })
     res.json(users)
   }
 
   getUserById = async (req, res) => {
+    if (!req.session.admin) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
     const { id } = req.params
     const user = await this.userModel.getUserById({ id })
     if (user) return res.json(user)
@@ -19,18 +25,26 @@ export class UserController {
   }
 
   createUser = async (req, res) => {
+    if (!req.session.admin) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
     const result = validateUser(req.body)
 
     if (!result.success) {
       return res.status(400).json({ error: JSON.parse(result.error.message) })
     }
-
-    const newUser = await this.userModel.createUser({ input: result.data })
-
-    res.status(201).json(newUser)
+    try {
+      const newUser = await this.userModel.createUser({ input: result.data })
+      res.status(201).json(newUser)
+    } catch (error) {
+      throw new Error("fail user erro:", error) 
+    }
   }
 
   deleteUser = async (req, res) => {
+    if (!req.session.admin) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
     const { id } = req.params
     const result = await this.userModel.deleteUser({ id })
 
@@ -42,6 +56,9 @@ export class UserController {
   }
 
   updateUser = async (req, res) => {
+    if (!req.session.admin) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
     const result = validatePartialUser(req.body)
 
     if (!result.success) {

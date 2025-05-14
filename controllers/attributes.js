@@ -1,12 +1,15 @@
-import { validateAttribute } from '../schemas/attribute.js'
+import { validateAttribute, validateAttributeArray, validateSingleAttribute, } from '../schemas/attribute.js'
 
 export class AttributeController {
     constructor({ attributeModel }) {
         this.attributeModel = attributeModel
     }
     createAttribute = async (req, res) => {
+        if (!req.session.admin) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
         const result = validateAttribute(req.body);
-
+        
         if (!result.success) {
             return res.status(400).json({ error: JSON.parse(result.error.message) });
         }
@@ -19,6 +22,9 @@ export class AttributeController {
         }
     }
     deleteAttribute = async (req, res) => {
+        if (!req.session.admin) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
         const { id } = req.params
         const result = await this.attributeModel.deleteAttribute({ id })
 
@@ -30,18 +36,23 @@ export class AttributeController {
     }
 
     updateAttribute = async (req, res) => {
-        const result = validateAttribute(req.body)
+        if (!req.session.admin) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+        const atrributes = req.body?.values?.attributes
+        const result = validateAttributeArray(atrributes)
 
         if (!result.success) {
             return res.status(400).json({ error: JSON.parse(result.error.message) })
         }
-
-        const { id } = req.params
-        const updatedAttribute = await this.attributeModel.updateAttribute({ id, input: result.data })
+        const updatedAttribute = await this.attributeModel.updateAttribute({ input: result.data })
 
         return res.json(updatedAttribute)
     }
     getAllAttributes = async (req, res) => {
+        if (!req.session.admin) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
         const { attribute } = req.query
         const attributes = await this.attributeModel.getAllAttributes({ attribute })
         res.json(attributes)
