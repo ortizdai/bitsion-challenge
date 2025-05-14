@@ -20,28 +20,20 @@ export class UserModel {
       gender,
       state,
     } = input
-
     const [uuidResult] = await connection.query('SELECT UUID() uuid;')
     const [{ uuid }] = uuidResult
 
     try {
       await connection.query(
-        `INSERT INTO user (id, full_name, identification, age, gender, state)
-            VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?);`,
-        [uuid,
-          full_name,
-          identification,
-          age,
-          gender,
-          state]
+        `INSERT INTO user (id, full_name, identification, age, gender, state) VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?);`,
+        [uuid, full_name, identification, age, gender, state]
       )
     } catch (e) {
       throw new Error('Error creating user', e)
     }
 
     const [users] = await connection.query(
-      `SELECT BIN_TO_UUID(id) id, full_name, identification, age, gender, state
-          FROM user WHERE id = UUID_TO_BIN(?);`,
+      `SELECT BIN_TO_UUID(id) id, full_name, identification, age, gender, state FROM user WHERE id = UUID_TO_BIN(?);`,
       [uuid]
     )
 
@@ -140,7 +132,6 @@ export class UserModel {
     const setClause = fields.map(field => `${field} = ?`).join(', ');
 
     const values = fields.map(field => input[field]);
-
     const [result] = await connection.query(
       `UPDATE user SET ${setClause} WHERE id = UUID_TO_BIN(?)`,
       [...values, id]

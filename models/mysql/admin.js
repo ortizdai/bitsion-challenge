@@ -28,8 +28,7 @@ export class AdminModel {
             password,
         } = input;
         const [validUserName] = await connection.query(
-            'SELECT * FROM admin WHERE userName = ?',
-            [username]
+            'SELECT * FROM admin WHERE userName = ?', [username]
         );
         if (validUserName.length > 0) {
             throw new Error('Username already exists');
@@ -40,19 +39,18 @@ export class AdminModel {
 
             const passwordHash = await bcrypt.hash(password, 10);
             await connection.query(
-                `INSERT INTO admin (id, username, email, full_name, password)
-        VALUES (UUID_TO_BIN(?), ?, ?, ?, ?);`,
+                `INSERT INTO admin (id, username, email, full_name, password) VALUES (UUID_TO_BIN(?), ?, ?, ?, ?);`,
                 [uuid, username, email, full_name, passwordHash]
             );
 
             const [adminsResult] = await connection.query(
-                `SELECT BIN_TO_UUID(id) id, userName, email, full_name
-         FROM admin WHERE id = UUID_TO_BIN(?)`,
+                `SELECT BIN_TO_UUID(id) id, userName, email, full_name FROM admin WHERE id = UUID_TO_BIN(?)`,
                 [uuid]
             );
 
             return adminsResult[0];
         } catch (e) {
+            console.log("error,", e)
             throw new Error('Error creating admin', e);
         }
     }
